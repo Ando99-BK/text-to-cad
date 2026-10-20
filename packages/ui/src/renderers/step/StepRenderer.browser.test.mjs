@@ -1463,8 +1463,21 @@ test('a click selects at once, and a double-click ends where it did when a click
   const { page, box, at, errors } = view;
   const selection = () => page.evaluate(() => { const state = window.cadHarness.a.controller.readState();
     return { parts: state.selectedPartIds, refs: state.selectedReferenceIds, isolated: state.isolatedPartIds }; });
-  const cleared = () => page.waitForFunction(() => { const state = window.cadHarness.a.controller.readState();
-    return state.selectedPartIds.length + state.selectedReferenceIds.length === 0; });
+  // A wait that times out says what stood instead: the picks, the pick menu, the tool in hand, a part
+  // still loading, the keyboard's owner, any popup.
+  const explained = (what, waiting) => waiting.catch(async error => {
+    const seen = await page.evaluate(() => { const state = window.cadHarness.a.controller.readState();
+      return { parts: state.selectedPartIds, refs: state.selectedReferenceIds, isolated: state.isolatedPartIds, loading: state.loading,
+        pick: document.querySelector('[data-select-filter-trigger]')?.getAttribute('aria-label'),
+        tool: [...document.querySelectorAll('[data-cad-toolbar] button[aria-pressed="true"]')].map(button => button.getAttribute('aria-label')),
+        treeLoading: [...document.querySelectorAll('[aria-label="Model tree"] [role=status]')].map(node => node.textContent),
+        focus: document.activeElement?.getAttribute('aria-label') || document.activeElement?.tagName,
+        quickEdit: Boolean(document.querySelector('[data-quick-edit-box]')),
+        popups: [...document.querySelectorAll('[role=menu], [role=dialog], [role=listbox], [data-radix-popper-content-wrapper]')].map(node => node.getAttribute('role') || 'popper') }; });
+    throw new Error(`${what}: ${JSON.stringify(seen)}`, { cause: error });
+  });
+  const cleared = () => explained('the selection did not clear', page.waitForFunction(() => { const state = window.cadHarness.a.controller.readState();
+    return state.selectedPartIds.length + state.selectedReferenceIds.length === 0; }));
   const copies = () => page.evaluate(() => window.__clipboardWrites.length);
   // Empty space: the bottom centre, under the model, with nothing of the viewer's own in it (the
   // view cube is the bottom-right's, the file sidebar runs down the left).
@@ -1530,9 +1543,12 @@ test('a click selects at once, and a double-click ends where it did when a click
   const turned = () => page.waitForFunction(previous => window.__cadCamera().position.some((value, index) => Math.abs(value - previous[index]) > 1e-3), opening.position);
   const back = async () => { await page.evaluate(camera => window.cadHarness.a.controller.setCamera(camera), opening); await restingCamera(page); };
   await view.chooseSelectMode('Faces');
+  // Leaving isolation moved the camera; `at` projects through the opening one, so it comes back, at
+  // rest, before the first press too (a press mid-move lands off the face it aims at).
+  await back();
   for (const [point, part] of [[[15, 0, 4], 'o1.2'], [[6, 6, 5], 'o1.1']]) {
     await page.mouse.click(...at(point));
-    await page.waitForFunction(id => new RegExp(`\\|${id.replace('.', '\\.')}\\.f\\d+$`).test(window.cadHarness.a.controller.readState().selectedReferenceIds.join()), part);
+    await explained(`no face of ${part} was picked`, page.waitForFunction(id => new RegExp(`\\|${id.replace('.', '\\.')}\\.f\\d+$`).test(window.cadHarness.a.controller.readState().selectedReferenceIds.join()), part));
   }
   await page.keyboard.press('Escape');
   await cleared();
@@ -1585,6 +1601,17 @@ test('a click selects at once, and a double-click ends where it did when a click
 
   // Hover is untouched: under Faces the face under the pointer lights, under Edges the edge does.
   await page.keyboard.press('Escape');
+  await cleared();
+  // An Escape in the same moment as a pick lets go of it: Escape reads the selection as it stands, not
+  // as the last render had it (on a slow runner, a pick landing just before Escape once stayed picked).
+  await page.evaluate(([x, y]) => {
+    const canvas = document.querySelector('[data-testid="one"] [aria-busy] > div > canvas');
+    const at = { bubbles: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse', isPrimary: true, button: 0 };
+    canvas.dispatchEvent(new PointerEvent('pointerdown', { ...at, buttons: 1 }));
+    canvas.dispatchEvent(new PointerEvent('pointerup', { ...at, buttons: 0 }));
+    if (!window.cadHarness.a.controller.readState().selectedReferenceIds.length) throw new Error('the press picked nothing');
+    canvas.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  }, at([15, 0, 4]));
   await cleared();
   await page.mouse.move(...empty);
   const faces = await restingFrame(view);
