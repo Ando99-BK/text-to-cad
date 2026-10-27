@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>text-to-cad Studio</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">text-to-cad <span>Studio</span></div>
+    <label class="picker">
+      <span class="sr-only">Model</span>
+      <select id="projects"></select>
+    </label>
+    <button id="new" type="button" class="ghost">New model</button>
+  </header>
+  <main class="layout">
+    <section class="chat" aria-label="Conversation">
+      <div id="log" class="log" aria-live="polite"></div>
+      <template id="empty-chat">
+        <div class="welcome">
+          <h1>Describe a part. Get a 3D model.</h1>
+          <p>Write what you need in any language: its purpose, its size, the holes and features it needs. Claude writes the CAD code, builds it, looks at it and fixes it, then shows it on the right.</p>
+          <div class="examples">
+            <button type="button">A desk phone stand, 80 mm wide, tilted back 65°, with a cable slot</button>
+            <button type="button">Hộp đựng linh kiện 100 × 60 × 40 mm, có 6 ngăn và nắp trượt</button>
+            <button type="button">A wall bracket for a 25 mm pipe with two M5 screw holes</button>
+            <button type="button">Bánh răng thẳng 24 răng, mô-đun 2, lỗ trục 8 mm có rãnh then</button>
+          </div>
+        </div>
+      </template>
+      <form id="composer" class="composer">
+        <textarea id="input" rows="3" placeholder="Describe a part, or ask for a change…" required></textarea>
+        <div class="composer-actions">
+          <span id="status" class="status"></span>
+          <button id="stop" type="button" class="ghost" hidden>Stop</button>
+          <button id="send" type="submit">Send</button>
+        </div>
+      </form>
+    </section>
+    <section class="stage" aria-label="Model">
+      <div class="stage-bar">
+        <span id="file-name" class="file-name">No model yet</span>
+        <div id="downloads" class="downloads"></div>
+      </div>
+      <div class="stage-body">
+        <iframe id="viewer" title="CAD Viewer" hidden></iframe>
+        <div id="stage-empty" class="stage-empty">Your model appears here once it is built.</div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

@@ -275,6 +275,7 @@ diff content: a comment in a module selects what the module's code would.
 | mcp | `apps/mcp`, `packages/ui`, `test-js.sh` | the CAD app's host-adapter units (jsdom) and its one-file build |
 | skills | every change | first, with only Python and Node: the light contracts (every policy test that reads the repository's text, and the gcode, sendcutsend and step-parts suites); then, after the full install, the policy tests that load cadgen or its runtime (`packages/cadgen`, `scripts/bundle`), the cad and dxf suites (the same, and each skill's documented examples), dfm and dfam-check (their skills) |
 | api | `apps/api`, `test-api.sh` | `npm --prefix apps/api test`: the version feed's and the telemetry receiver's tests (no install) |
+| studio | `apps/studio`, the cad skill's `SKILL.md` and references (its system prompt), `test-studio.sh` | `npm --prefix apps/studio test`: the studio server's tests, against a fake Claude and a fake cadgen |
 | docs | `apps/docs`, `scripts/brand`, `test-docs.sh` | `npm --prefix apps/docs run check` (static asset contract, lint, Next build, icon verification) and the animated brand marks |
 | packaging | `packages/cadgen`, `packages/ui`, `apps/web`, `apps/mcp`, `scripts/bundle`, the wheel and install scripts | clean bundle, layout, wheel contents, installed CLI behavior |
 
@@ -405,6 +406,8 @@ Canonical source directories are:
 - `apps/docs/` for the site.
 - `apps/api/` for `api.texttocad.dev`, the version feed and the telemetry receiver
   cadgen talks to: a Vercel project of its own, with no dependencies.
+- `apps/studio/` for text-to-cad Studio, a local web app that turns a description
+  into a model with Claude and the cad skill, and shows it in the CAD Viewer.
 - `packages/cadgen/` for the Python distribution and bundled runtime assets.
 - `packages/core/` for non-React CAD/client code.
 - `packages/ui/` for FileViewer, renderers, controls and shared styles.
@@ -1047,6 +1050,7 @@ scripts/test/test-python.sh              # includes the Viewer's BACKEND suite
 scripts/test/test-python.sh --select viewer   # the Viewer's backend alone (~11 s)
 npm --prefix apps/docs run check
 npm --prefix apps/api test               # api.texttocad.dev, no install needed
+npm --prefix apps/studio test            # text-to-cad Studio's server
 ```
 
 Use `AGENTS.md` or `scripts/README.md` for path-specific validation when you are

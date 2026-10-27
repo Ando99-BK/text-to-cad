@@ -67,6 +67,7 @@ class EveryTestRunsInCI(unittest.TestCase):
             r"^apps/web/(src|scripts)/.*\.test\.[cm]?js$",              # apps/web/scripts/run-tests.mjs
             r"^apps/mcp/src/.*\.test\.tsx?$",                          # apps/mcp vitest.config.mjs
             r"^apps/api/src/[^/]*\.test\.mjs$",                   # test-api.sh (node --test)
+            r"^apps/studio/src/[^/]*\.test\.mjs$",                # test-studio.sh (node --test)
             r"^scripts/brand/[^/]*\.test\.mjs$",                          # test-docs.sh
             r"^scripts/bench/viewer-memory/[^/]*\.test\.mjs$",          # test-js.sh --select core
             r"^scripts/test/check-(dependencies|kit-boundaries)\.test\.mjs$",  # test-js.sh
@@ -229,7 +230,9 @@ class ChangesRunWhatCanBreak(unittest.TestCase):
         self.assertEqual(tests_for("skills/dxf/SKILL.md")["skills_tests"], [f"{SKILLS}/dxf/test_documented_commands.py"])
         snapshot_review = tests_for("skills/cad/references/snapshot-review.md")
         self.assertEqual(snapshot_review["cadgen_tests"], [f"{CADGEN}/test_snapshot_requests.py"])
-        self.assertEqual(jobs_for("skills/cad/references/snapshot-review.md"), {"cadgen-linux", "cadgen-windows", "skills"})
+        self.assertEqual(jobs_for("skills/cad/references/snapshot-review.md"), {"cadgen-linux", "cadgen-windows", "studio", "skills"})
+        # The studio's system prompt is the cad skill.
+        self.assertEqual(jobs_for("skills/cad/SKILL.md"), {"studio", "skills"})
 
     def test_a_skill_script_runs_its_suite(self):
         self.assertEqual(tests_for("skills/dfm/scripts/mold_tool.py")["skills_tests"], [f"{SKILLS}/dfm"])
@@ -245,7 +248,7 @@ class ChangesRunWhatCanBreak(unittest.TestCase):
         self.assertEqual(tests_for(f"{SKILLS}/cad/__init__.py")["skills_tests"], [f"{SKILLS}/cad"])
 
     def test_cadgen_runs_its_suites_its_hosts_and_the_wheel(self):
-        self.assertEqual(jobs_for("packages/cadgen/src/cadgen/step.py"), GATED - {"core-js", "mcp", "api", "docs"})
+        self.assertEqual(jobs_for("packages/cadgen/src/cadgen/step.py"), GATED - {"core-js", "mcp", "api", "studio", "docs"})
         chosen = tests_for("packages/cadgen/src/cadgen/step.py")
         self.assertEqual(chosen["cadgen_tests"], [CADGEN])
         self.assertEqual(chosen["skills_tests"], [f"{SKILLS}/cad", f"{SKILLS}/dxf"])
@@ -288,6 +291,8 @@ class ChangesRunWhatCanBreak(unittest.TestCase):
         self.assertEqual(jobs_for("apps/docs/public/brand/logo.svg"), {"docs", "skills"})
         self.assertEqual(jobs_for("apps/api/src/versions.mjs"), {"api", "skills"})
         self.assertEqual(jobs_for("apps/api/vercel.json"), {"api", "skills"})
+        self.assertEqual(jobs_for("apps/studio/src/server.mjs"), {"studio", "skills"})
+        self.assertEqual(jobs_for("apps/studio/public/app.js"), {"studio", "skills"})
         # apps/web's tests resolve the links in its Markdown, so what they link to is web input.
         self.assertEqual(jobs_for("apps/web/README.md"), {"web", "skills"})
         for target in selector.web_link_targets():
@@ -300,13 +305,14 @@ class ChangesRunWhatCanBreak(unittest.TestCase):
             "scripts/test/test-installed.sh": {"packaging", "skills"},
             "scripts/test/test-docs.sh": {"docs", "skills"},
             "scripts/test/test-api.sh": {"api", "skills"},
+            "scripts/test/test-studio.sh": {"studio", "skills"},
             "scripts/test/test-js.sh": {"core-js", "web", "mcp", "skills"},
             "scripts/test/check-dependencies.mjs": {"core-js", "web", "mcp", "skills"},
             "scripts/test/test-global.sh": {"skills"},
             "scripts/test/test-python.sh": {"cadgen-linux", "cadgen-windows", "skills"},
             "scripts/release/sync-version.mjs": {"packaging", "skills"},
             "scripts/github-workflows/check-builds.sh": {"packaging", "skills"},
-            "scripts/bundle/bundle.sh": GATED - {"core-js", "mcp", "api", "docs"},
+            "scripts/bundle/bundle.sh": GATED - {"core-js", "mcp", "api", "studio", "docs"},
             "scripts/brand/generate-logos.mjs": {"docs", "skills"},
             "scripts/bench/viewer-memory/helpers.mjs": {"core-js", "skills"},
         }
