@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-import { describeCall } from "./tools.mjs";
+import { describeStep } from "./tools.mjs";
 
 export const DEFAULT_MODEL = "claude-opus-5-5";
 // Server-side fallback when a safety classifier declines ("default" routes by category), and
@@ -25,7 +25,7 @@ export function repairHistory(messages) {
 
 /**
  * The conversation as the person's chat shows it: their messages, and per reply Claude's text
- * with a label for each tool call. Tool results and thinking are not shown.
+ * with a step for each tool call. Tool results and thinking are not shown.
  */
 export function transcript(messages) {
   const entries = [];
@@ -40,7 +40,7 @@ export function transcript(messages) {
     if (reply?.role !== "assistant") entries.push(reply = { role: "assistant", text: "", steps: [] });
     for (const block of blocks) {
       if (block.type === "text") reply.text += (reply.text ? "\n\n" : "") + block.text;
-      if (block.type === "tool_use") reply.steps.push(describeCall(block.name, block.input));
+      if (block.type === "tool_use") reply.steps.push(describeStep(block.name, block.input));
     }
   }
   return entries;
@@ -113,7 +113,7 @@ export async function runTurn({ client, model = DEFAULT_MODEL, effort = "high", 
         results.push({ type: "tool_result", tool_use_id: use.id, content: CANCELLED, is_error: true });
         continue;
       }
-      onEvent({ type: "tool", id: use.id, label: describeCall(use.name, use.input) });
+      onEvent({ type: "tool", id: use.id, step: describeStep(use.name, use.input) });
       const result = await toolbox.run(use.name, use.input);
       results.push({ type: "tool_result", tool_use_id: use.id, content: result.content, ...(result.isError ? { is_error: true } : {}) });
       onEvent({ type: "tool_result", id: use.id, ok: !result.isError });

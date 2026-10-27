@@ -83,18 +83,17 @@ export function toolDefinitions(references) {
   ];
 }
 
-/** A short label for the person's chat: what a tool call did, without its contents. */
-export function describeCall(name, input) {
-  const target = typeof input?.path === "string" ? input.path : "";
-  switch (name) {
-    case "write_file": return `Wrote ${target}`;
-    case "read_file": return `Read ${target}`;
-    case "list_files": return "Listed the project files";
-    case "run_python": return `Built ${target}`;
-    case "snapshot": return `Looked at ${target}${typeof input?.camera === "string" ? ` (${input.camera})` : ""}`;
-    case "read_reference": return `Read the ${input?.name ?? ""} reference`;
-    default: return name;
-  }
+const STEP_ACTIONS = { write_file: "write", read_file: "read", list_files: "list", run_python: "build", snapshot: "look", read_reference: "reference" };
+
+/**
+ * What a tool call did, for the person's chat, without its contents: an action the page words
+ * in the person's language, and the file or reference it was about.
+ */
+export function describeStep(name, input) {
+  const target = typeof input?.path === "string" ? input.path : typeof input?.name === "string" ? input.name : "";
+  const step = { action: STEP_ACTIONS[name] ?? "other", target: STEP_ACTIONS[name] ? target : name };
+  if (name === "snapshot" && typeof input?.camera === "string") step.view = input.camera;
+  return step;
 }
 
 const error = (message) => ({ content: message, isError: true });

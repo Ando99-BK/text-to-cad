@@ -13,7 +13,13 @@ import { createToolbox, toolDefinitions } from "./tools.mjs";
 import { startViewer, viewerLink } from "./viewer.mjs";
 
 const PUBLIC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../public");
-const STATIC = { "/": ["index.html", "text/html"], "/app.js": ["app.js", "text/javascript"], "/styles.css": ["styles.css", "text/css"] };
+const STATIC = {
+  "/": ["index.html", "text/html"],
+  "/app.js": ["app.js", "text/javascript"],
+  "/i18n.js": ["i18n.js", "text/javascript"],
+  "/markdown.js": ["markdown.js", "text/javascript"],
+  "/styles.css": ["styles.css", "text/css"],
+};
 const DOWNLOAD_TYPES = { step: "application/step", stl: "model/stl", "3mf": "model/3mf", glb: "model/gltf-binary" };
 const LOOPBACK = new Set(["127.0.0.1", "localhost", "[::1]"]);
 const MAX_BODY = 64 * 1024;

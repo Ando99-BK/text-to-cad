@@ -40,7 +40,10 @@ with the cad skill and keep going.
 ## How it works
 
 ```text
-public/              the page: plain HTML, CSS and one module, no build
+public/              the page: plain HTML, CSS and modules, no build
+  app.js             the conversation, the stage and the downloads
+  markdown.js        Claude's replies, parsed to runs the page turns into DOM nodes
+  i18n.js            the page's words in English and Vietnamese, by the browser's language
 src/server.mjs       HTTP routes, the request guard, startup
 src/agent.mjs        one turn of the conversation: Claude's tool calls until it answers
 src/tools.mjs        the tools Claude has, and their input checks
@@ -91,6 +94,7 @@ npm --prefix apps/studio test
 ```
 
 The tests use a fake Claude client and a fake cadgen: tool input checks, the tool
-loop and its stop reasons, the request guard, and a whole turn over HTTP down to the
-download. CI runs them in the `studio` job (`scripts/test/test-studio.sh`). A real
-build and a real Claude are checked by hand.
+loop and its stop reasons, the request guard, a whole turn over HTTP down to the
+download, and the page's Markdown parsing and step wording. CI runs them in the
+`studio` job (`scripts/test/test-studio.sh`). A real build and a real Claude are
+checked by hand.

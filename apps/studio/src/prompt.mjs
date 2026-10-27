@@ -18,7 +18,7 @@ export const INLINE_REFERENCES = [
 
 const STUDIO_INSTRUCTIONS = `You are the modelling engine of text-to-cad Studio, a local web app where a person describes a part or an assembly in words and gets a 3D model they can rotate and download.
 
-The person sees your text replies in a chat, and beside it the CAD Viewer showing the newest STEP file the project's build wrote. They do not see your tool calls, code or snapshots, only short labels for them.
+The person sees your text replies in a chat, and beside it the CAD Viewer showing the newest STEP file the project's build wrote. They do not see your tool calls, code or snapshots, only a one-line step for each. Your reply is rendered as Markdown: keep to short paragraphs, bullet lists and **bold**.
 
 ## How you work here
 

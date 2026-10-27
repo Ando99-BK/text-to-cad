@@ -72,7 +72,7 @@ test("tool calls left without results are answered with cancellations, appended"
   assert.equal(repairHistory(messages), false);
 });
 
-test("the chat shows the person's messages and Claude's replies with step labels", () => {
+test("the chat shows the person's messages and Claude's replies with their steps", () => {
   assert.deepEqual(transcript([
     { role: "user", content: "a cube" },
     { role: "assistant", content: [{ type: "thinking", thinking: "" }, toolUse("t1", "run_python", { path: "src/model.py" })] },
@@ -81,7 +81,7 @@ test("the chat shows the person's messages and Claude's replies with step labels
     { role: "user", content: "taller" },
   ]), [
     { role: "user", text: "a cube" },
-    { role: "assistant", text: "Here it is.", steps: ["Built src/model.py"] },
+    { role: "assistant", text: "Here it is.", steps: [{ action: "build", target: "src/model.py" }] },
     { role: "user", text: "taller" },
   ]);
 });

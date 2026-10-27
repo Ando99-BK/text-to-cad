@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, test } from "node:test";
 
-import { createToolbox, describeCall, toolDefinitions } from "./tools.mjs";
+import { createToolbox, describeStep, toolDefinitions } from "./tools.mjs";
 
 let projectDir;
 let calls;
@@ -69,13 +69,15 @@ test("a snapshot renders the saved file and returns the image to Claude", async 
   assert.equal((await toolbox.run("snapshot", { path: "STEP/missing.step" })).isError, true);
 });
 
-test("references, listings and labels", async () => {
+test("references, listings and steps", async () => {
   assert.equal((await toolbox.run("read_reference", { name: "kinematics.md" })).content, "# Kinematics");
   assert.equal((await toolbox.run("read_reference", { name: "../SKILL.md" })).isError, true);
   assert.equal((await toolbox.run("list_files", {})).content, "The project is empty.");
   assert.equal((await toolbox.run("read_file", { path: "project.json" })).isError, true);
   assert.equal((await toolbox.run("nope", {})).isError, true);
-  assert.equal(describeCall("run_python", { path: "src/model.py" }), "Built src/model.py");
+  assert.deepEqual(describeStep("run_python", { path: "src/model.py" }), { action: "build", target: "src/model.py" });
+  assert.deepEqual(describeStep("snapshot", { path: "STEP/model.step", camera: "top" }), { action: "look", target: "STEP/model.step", view: "top" });
+  assert.deepEqual(describeStep("read_reference", { name: "kinematics.md" }), { action: "reference", target: "kinematics.md" });
   assert.deepEqual(toolDefinitions(["kinematics.md"]).map((tool) => tool.name),
     ["write_file", "read_file", "list_files", "run_python", "snapshot", "read_reference"]);
 });
