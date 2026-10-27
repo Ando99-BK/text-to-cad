@@ -101,6 +101,7 @@ path, the rehearsal, and local/manual fallbacks.
   runtimes it executes.
 - `apps/docs/`: documentation site.
 - `apps/api/`: `api.texttocad.dev`, its own Vercel project: cadgen's version feed (read from PyPI) and the CAD app's consented analytics.
+- `apps/studio/`: text-to-cad Studio, a local web app: a description in, a model out, through Claude, the cad skill and cadgen.
 - `tests/`: root-owned test suites for skills, packages, viewer services, and
   repo-wide policy.
 - `scripts/`: durable repo commands grouped by purpose.
@@ -109,7 +110,7 @@ path, the rehearsal, and local/manual fallbacks.
 
 - Boundaries and design laws live in each package's README: read
   `packages/cadgen/README.md` (the laws), `packages/core/README.md`, `packages/ui/README.md`,
-  `apps/web/README.md`, `apps/docs/README.md` and `apps/api/README.md` before changing
+  `apps/web/README.md`, `apps/docs/README.md`, `apps/api/README.md` and `apps/studio/README.md` before changing
   generation, rendering, storage, layout, or public interfaces.
 - A README holds the laws; the mechanism each law constrains lives one link
   away, and the README names the link. Read the README, then follow the one
@@ -251,8 +252,8 @@ path, the rehearsal, and local/manual fallbacks.
 Run the smallest path-targeted check that covers the change. Use broad wrappers
 when touching shared surfaces or before handoff:
 
-- Code tests: `scripts/test/test.sh` (JS, API, Python, then policy).
-- Focused runners: `scripts/test/test-js.sh`, `scripts/test/test-api.sh`, `scripts/test/test-docs.sh`,
+- Code tests: `scripts/test/test.sh` (JS, API, Studio, Python, then policy).
+- Focused runners: `scripts/test/test-js.sh`, `scripts/test/test-api.sh`, `scripts/test/test-studio.sh`, `scripts/test/test-docs.sh`,
   `scripts/test/test-python.sh`, `scripts/test/test-global.sh`.
   `test-python.sh` takes `--select cadgen|viewer|skills|all` and
   `--print-weights`; `test-js.sh` takes `--select core|ui|web|mcp|all`. See
@@ -274,6 +275,7 @@ when touching shared surfaces or before handoff:
   `scripts/test/test-python.sh`. Touching `cadgen/viewer/` means running that.
 - Docs site: `npm --prefix apps/docs run check`
 - API (`api.texttocad.dev`): `npm --prefix apps/api test`
+- Studio (`apps/studio`): `npm --prefix apps/studio test`
 - Targeted Python tests: `./.venv/bin/python -m unittest <changed test paths>`
 
 When a task changes what the bundlers consume, run `scripts/bundle/bundle.sh`

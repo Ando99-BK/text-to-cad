@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>text-to-cad Studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f6bff'/%3E%3Cpath d='M16 6 25 11v10l-9 5-9-5V11z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M7 11l9 5 9-5M16 16v10' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <svg width="0" height="0" class="icons" aria-hidden="true">
+    <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 2.5 20.5 7.25v9.5L12 21.5l-8.5-4.75v-9.5z"/><path d="M3.5 7.25 12 12l8.5-4.75M12 12v9.5"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3.5c.6 4.4 2.6 6.4 7 7-4.4.6-6.4 2.6-7 7-.6-4.4-2.6-6.4-7-7 4.4-.6 6.4-2.6 7-7z"/></symbol>
+    <symbol id="i-stand" viewBox="0 0 24 24"><path d="M4 19h16M7 19l4-13h3l-3 13M15 19v-3"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="1.5"/><path d="M9.5 6v12M15 6v12M3.5 12h17"/></symbol>
+    <symbol id="i-pipe" viewBox="0 0 24 24"><circle cx="12" cy="10" r="4.5"/><path d="M4 19.5h16M7.5 19.5V14M16.5 19.5V14"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1M18.7 18.7l-2.1-2.1M7.4 7.4 5.3 5.3"/><circle cx="12" cy="12" r="6.5"/></symbol>
+  </svg>
+
+  <header class="bar">
+    <a class="brand" href="/" aria-label="text-to-cad Studio">
+      <span class="logo"><svg><use href="#i-cube"/></svg></span>
+      <span class="brand-name">text-to-cad <b>Studio</b></span>
+    </a>
+    <div class="bar-actions">
+      <label class="picker">
+        <span class="sr-only" data-i18n="models"></span>
+        <select id="projects"></select>
+        <svg class="picker-chevron"><use href="#i-chevron"/></svg>
+      </label>
+      <button id="new" type="button" class="button ghost">
+        <svg><use href="#i-plus"/></svg><span data-i18n="newModel"></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="chat" aria-label="Conversation">
+      <div id="log" class="log" aria-live="polite"></div>
+      <template id="empty-chat">
+        <div class="welcome">
+          <div class="welcome-mark"><svg><use href="#i-cube"/></svg></div>
+          <h1 data-i18n="heroTitle"></h1>
+          <p data-i18n="heroBody"></p>
+          <div class="examples-label" data-i18n="tryOne"></div>
+          <div class="examples"></div>
+        </div>
+      </template>
+      <form id="composer" class="composer">
+        <div class="composer-box">
+          <textarea id="input" rows="2" required></textarea>
+          <button id="stop" type="button" class="round stop" hidden>
+            <svg><use href="#i-stop"/></svg><span class="sr-only" data-i18n="stop"></span>
+          </button>
+          <button id="send" type="submit" class="round">
+            <svg><use href="#i-send"/></svg><span class="sr-only" data-i18n="send"></span>
+          </button>
+        </div>
+        <div class="composer-foot">
+          <span id="status" class="status"></span>
+          <span class="hint" data-i18n="hint"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="stage" aria-label="Model">
+      <div class="stage-bar">
+        <div class="file">
+          <span id="file-kind" class="badge" hidden></span>
+          <span id="file-name" class="file-name"></span>
+        </div>
+        <div id="downloads" class="downloads"></div>
+      </div>
+      <div class="stage-body">
+        <iframe id="viewer" title="CAD Viewer" hidden></iframe>
+        <div id="stage-empty" class="stage-empty">
+          <div class="stage-card">
+            <div class="stage-art"><svg><use href="#i-cube"/></svg></div>
+            <h2 id="stage-title"></h2>
+            <p id="stage-text"></p>
+          </div>
+        </div>
+        <div id="building" class="building" hidden>
+          <span class="spinner"></span><span data-i18n="building"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

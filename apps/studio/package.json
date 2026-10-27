@@ -1,0 +1,13 @@
+{
+  "name": "@text-to-cad/studio",
+  "private": true,
+  "type": "module",
+  "version": "0.7.26",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node --test src/*.test.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.3.0"
+  }
+}

@@ -25,6 +25,7 @@ Outputs (GITHUB_OUTPUT), one flag per job and the test paths the narrowed jobs t
     web  web_ui  web_client  web_viewer
     mcp
     api
+    studio
     skills  light_policy  light_tests  skills_policy  skills_tests  skills_runtime
     docs
     packaging
@@ -57,7 +58,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CADGEN_SUITE = "tests/python/packages/cadgen"
 POLICY_SUITE = "tests/python/global"
 SKILL_SUITES = "tests/python/skills"
-FLAGS = ("core_js", "web_ui", "web_client", "web_viewer", "mcp", "api", "docs", "packaging")
+FLAGS = ("core_js", "web_ui", "web_client", "web_viewer", "mcp", "api", "studio", "docs", "packaging")
 
 
 @dataclasses.dataclass(frozen=True)
@@ -245,6 +246,7 @@ RULES: tuple[Rule, ...] = (
     Rule(("apps/web/**",), select(flags=["web_client", "web_viewer", "packaging"])),
     Rule(("apps/mcp/**",), select(flags=["mcp", "packaging"])),
     Rule(("apps/api/**",), select(flags=["api"])),
+    Rule(("apps/studio/**",), select(flags=["studio"])),
     Rule(("apps/docs/**",), select(flags=["docs"])),
     # check-dependencies.mjs walks every app's source and runs in core-js, the cheapest job
     # that has it.
@@ -266,6 +268,8 @@ RULES: tuple[Rule, ...] = (
     Rule(("skills/**",), NOTHING),
     Rule(("skills/cad/**",), select(skills=[f"{SKILL_SUITES}/cad/test_documented_models.py",
                                             f"{SKILL_SUITES}/cad/test_documented_project.py"])),
+    # The studio's system prompt is the cad skill, and its tests read it.
+    Rule(("skills/cad/SKILL.md", "skills/cad/references/**"), select(flags=["studio"])),
     Rule(("skills/cad/references/snapshot-review.md",), select(cadgen=[f"{CADGEN_SUITE}/test_snapshot_requests.py"])),
     Rule(("skills/dxf/**",), select(skills=[f"{SKILL_SUITES}/dxf/test_documented_commands.py"])),
     Rule(("skills/dfam-check/**",), select(skills=[f"{SKILL_SUITES}/dfam-check"])),
@@ -279,6 +283,7 @@ RULES: tuple[Rule, ...] = (
     Rule(("scripts/test/test-global.sh",), select(policy=[POLICY_SUITE])),
     Rule(("scripts/test/test-js.sh", "scripts/test/check-*.mjs"), select(flags=["core_js", "web_ui", "web_client", "mcp"])),
     Rule(("scripts/test/test-api.sh",), select(flags=["api"])),
+    Rule(("scripts/test/test-studio.sh",), select(flags=["studio"])),
     Rule(("scripts/test/test-docs.sh", "scripts/brand/**"), select(flags=["docs"])),
     Rule(("scripts/test/test-viewer-launch.sh", "scripts/test/test-viewer-browser.sh"), select(flags=["web_viewer"])),
     Rule(("scripts/test/test-installed.sh",), select(flags=["packaging"])),
